@@ -1,0 +1,44 @@
+<!--login.html, login page html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>thereforyou 홈</title>
+    </head>
+    <body>
+        <div style="width:50%;float:left;">
+            <center>
+            <form>
+                <h1>가입해주세요!</h1>
+                <table>
+                    <tr><td>이름</td><td><input type = "text" id = "signup_name"></td></tr>
+                    <tr><td>전화번호</td><td> <input type = "text" id = "signup_phone"></td></tr>
+                    <tr><td>이메일</td><td><input type = "text" id = "signup_email"></td></tr>
+                    <tr><td>비밀번호</td><td><input type = "text" id = "signup_pwd"></td></tr>
+                    <tr><td>인증 코드</td><td><input type = "text" id = "verify_code"></td></tr>
+                </table>
+                <input type = "button" value = "가입" onclick = "submitSignUp()">
+                <input type = "button" value = "인증" onclick = "submitVerify()">
+            </form>
+            </center>
+        </div>
+        <div style="width:50%;float:right;">
+            <center>
+            <form>
+            <h1>로그인</h1>
+            <table>
+                <tr><td>전화번호</td><td><input type = "text" id = "login_phone"></td></tr>
+                <tr><td>비밀번호</td><td><input type = "password" id = "login_pwd"></td></tr>
+            </table>
+            <input type = "button" value = "로그인" onclick = "submitLogin()">
+            </form>
+            </center>
+        </div>
+        
+        <script type = 'text/javascript' src="/cognito/aws-cognito-sdk.min.js"></script>
+        <script type = 'text/javascript' src="/cognito/amazon-cognito-identity.min.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.20.min.js"></script>
+        <script type = "text/javascript" src = 'loginBtnClick.js'></script>
+        
+    </body>
+</html>
