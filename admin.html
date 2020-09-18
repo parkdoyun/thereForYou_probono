@@ -1,0 +1,286 @@
+<!--admin.html, admin page html-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+	    <title>내 정보 관리</title>
+	    <style type = "text/css">
+	        #logout_div{
+	            width:100%;
+                height:30px;
+                
+	        }
+    	    #logo{
+                margin-top:40px;
+                font-size:40px;
+                width:100%;
+                height:100px;
+                text-align:center;
+                font-weight:bold;
+            }
+            #menu_bar{
+                width:100%;
+                height:40px;
+                background-color:lightgreen;
+            }
+            #guardInfoFrame{
+	            
+	            visibility:visible;
+	            position:absolute;
+	            top:240px;
+	            width:99%;
+	            height:500px;
+	        }
+	        #weakInfoFrame{
+	            
+	            visibility:hidden;
+	            position:absolute;
+	            top:240px;
+	            width:99%;
+	            height:500px;
+	        }
+            #leftframe{
+            	text-align:center;
+            	height:1000px;
+            	float:left;
+            	width:50%;
+            	border-right:1.5px solid;
+            }
+            #rightframe{
+            	height:1000px;
+            	float:right;
+            	width:49%;
+            	text-align:center;
+            }
+            #weak_search_div{
+            	margin-bottom:50px;
+            }
+            #weak_modify_div{
+            	width:50%;
+            }
+            #weak_table{
+            	width:100%;
+                border-top: 1px solid #444444;
+                border-bottom: 1px solid #444444;
+                border-collapse: collapse;
+            }
+            #guard_div{
+            	margin-top:50px;
+            	width:50%;
+            	float:left;
+            }
+            #weak_signup
+            {
+                width:49%;
+                margin-top:50px;
+                height:300px;
+                float:right;
+            }
+            #position_table{
+            	width:100%;
+                border-top: 1px solid #444444;
+                border-bottom: 1px solid #444444;
+                border-collapse: collapse;
+            }
+            ul{
+                list-style-type : none;
+                margin : 0;
+                padding : 0;
+                background-color : #333;
+            }
+            ul:after{
+                content:'';
+                display : block;
+                clear : both;
+            }
+            li{
+                float:left;
+            }
+            li a{
+                display:block;
+                color:white;
+                text-align : center;
+                padding : 14px 16px;
+                text-decoration : none;
+            }
+            li a:hover{
+                background-color : #111111;
+                
+            }
+            li a:active {
+                background-color : #4CAF50;
+            }
+	    </style>
+	    <!--여기에 이렇게 style 태그로 넣어줘야 적용됨. 밖으로 빼면 적용 안 된다-->
+    </head>
+    <body>
+        <script type = 'text/javascript' src="/cognito/aws-cognito-sdk.min.js"></script>
+        <script type = 'text/javascript' src="/cognito/amazon-cognito-identity.min.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.20.min.js"></script>
+        <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCn_fjs6sURfWV4xm2p94KkUYTTF4dUNcc"></script>
+        <div id = "logout_div" style = "font-size:15px;text-align:right;"><span id = "login_name" style = "font-size:20px;"></span>님 안녕하세요!
+        <input type = "button" value = "로그아웃" onclick = "logoutBtn()">
+        </div>
+        <script>
+        //세션으로 넘기기 성공, 전화번호는 키로 따로 변수에 넣어놓고, 보이는 건 이름만 보여야 함!
+        document.getElementById("login_name").innerHTML = sessionStorage.getItem("name");
+        var login_phone = sessionStorage.getItem("phoneNumber"); // 이 변수로 정보 이용.
+        
+        </script>
+	     <div id = "logo">내 정보 관리</div>
+	     <div id = "menu_bar">
+	         <ul>
+	             <li><a class = "active" onclick = "guardFrameGo()">My Page</a></li>
+	             <li><a class = "active"  onclick = "weakFrameGo()">약자 정보 확인</a></li>
+	         </ul>
+	     
+	     </div>
+	     <script>
+	        function guardFrameGo()
+	        {
+	            var g = document.getElementById("guardInfoFrame");
+	            var w = document.getElementById("weakInfoFrame");
+	                 g.style.visibility = "visible"; // css 제어시 style 넣어줘야 함
+	                 w.style.visibility = 'hidden';
+	        }
+	        function weakFrameGo()
+	        {
+	            var g = document.getElementById("guardInfoFrame");
+	            var w = document.getElementById("weakInfoFrame");
+	                 g.style.visibility = "hidden"; // css 제어시 style 넣어줘야 함
+	                 w.style.visibility = 'visible';
+	        }
+	        function logoutBtn()
+	        {
+	            //세션 비우고
+	            sessionStorage.clear();
+	            alert("로그아웃되었습니다.");
+	            location.href = "http://15.165.115.252:8080/login"; // 여기로 이동
+	        }
+	        
+	     </script>
+	     <div id = "guardInfoFrame">
+	     <div id = "guard_div">
+	         <center>
+                    <form id = "guard_info">
+                        <h2>보호자 정보</h2>
+                        
+                            <table id = "guard_table" style = "text-align:center;">
+                                <tr><td>이름</td><td><input type = "text" id = "modify_guard_name"></td></tr>
+                                <tr><td>연락처</td><td><input type = "text" id = "modify_guard_contact" readonly></td></tr>
+                                <tr><td>이메일</td><td><input type = "text" id = "modify_guard_email" readonly></td></tr>
+                                <tr><td>비밀번호</td><td><input type = "text" id = "modify_guard_pwd" readonly></td></tr>
+                                
+                            </table>
+                            <input type = "button" id = "modify_btn_guard" value = "수정" onclick = "guardModifyBtn()">
+                            <input type = "button" id = "del_btn_guard" value = "탈퇴" onclick = "guardDelBtn()">
+                    </form>
+                    </center>
+         </div>
+         <div id = "weak_signup">
+             <center>
+                 <h2>약자 신규 등록</h2>
+             <form>
+                 <table id = "weak_signup_table" style = "text-align:center;">
+                    <tr><td>이름</td><td><input type = "text" id = "weak_signup_name"></td></tr>
+                    <tr><td>성별</td><td>
+                        <select name = "sex" id = "weak_signup_sex">
+                            <option value = "male" selected>남성</option>
+                            <option value = "female">여성</option>
+                        </select>
+                    </td></tr>
+                    <tr><td>나이</td><td><input type = "text" id = "weak_signup_age"></td></tr>
+                    <tr><td>거주지 위도</td><td><input type = "text" id = "weak_signup_lat"></td></tr>
+                    <tr><td>거주지 경도</td><td><input type = "text" id = "weak_signup_lng"></td></tr>
+                    <tr><td>상세 정보</td><td><input type = "text" id = "weak_signup_detail"></td></tr>
+                    <tr><td>특이사항</td><td><textarea id = "weak_signup_feature" cols="20" rows = "5"></textarea></td></tr>
+                </table>
+                <input type = "button" value = "등록" onclick = "weakSignUpBtn()">
+             </form>
+             </center>
+         </div>
+	     </div>
+	     <div id = "weakInfoFrame">
+	         <div id = "leftframe">
+            <center>
+                <div id = "weak_search_div">
+                    <h2>약자 정보 검색</h2>
+                    <form id = "weak_search_form">
+                        <table style = "text-aling:center;">
+                            <tr>
+                                <td>이름</td><td><input type = "text" placeholder="이름 입력" id = "search_name" onkeypress = "javascript:if(event.keyCode==13){searchBtnClick()}">
+                                <input type = "text" style = "display:none;"></td><!--text 폼 하나만 있을 때 엔터키 누르면 자동 submit된다! 그거 방지하기 위해 다른 폼 하나 더 생성. -->
+                            
+                                <td><input type = "button" id = "search_btn" value = "검색" onclick = "searchBtnClick()"></td>
+                            </tr>
+                        </table>
+                    </form>
+                    <form id = "weak_info">
+                        <div style = "overflow-y:scroll;width:90%;height:200px;">
+                        <table id = "weak_table" style = "text-align:center;">
+                            <tr>
+                                <td>약자 번호</td><td>id</td><td>이름</td><td>성별</td><td>나이</td><td>거주지 위도</td><td>거주지 경도</td><td>상세 정보</td><td>특이사항</td><td></td>
+                            </tr>
+                        </table>
+                        </div>
+                    </form>
+                </div>
+                <div id = "weak_modify_div">
+                    <form id = "weak_modify">
+                        <fieldset>
+                            <legend>정보 수정</legend>
+                            <table style = "text-align:center;">
+                                <tr><td>약자 번호</td><td><input type = "text" id = "modify_num" readonly></td></tr>
+                                <tr><td>이름</td><td><input type = "text" id = "modify_name"></td></tr>
+                                <tr><td>성별</td><td>
+                                <select name = "sex" id = "modify_sex">
+                                <option value = "male" selected>남성</option>
+                                <option value = "female">여성</option>
+                                </select>
+                                </td></tr>
+                                <tr><td>나이</td><td><input type = "text" id = "modify_age"></td></tr>
+                                <tr><td>거주지 위도</td><td><input type = "text" id = "modify_latitude"></td></tr>
+                                <tr><td>거주지 경도</td><td><input type = "text" id = "modify_longitude"></td></tr>
+                                <tr><td>상세 정보</td><td><input type = "text" id = "modify_detail"></td></tr>
+                                <tr><td>특이사항</td><td><textarea id = "modify_feature" cols="20" rows = "5" ></textarea></td></tr>
+                            </table>
+                            <input type = "button" id = "modify_btn" value = "수정" onclick = "weakInfoModBtn()">
+                        </fieldset>
+                    </form>
+                </div>
+            </center>
+        </div>
+        <div id = "rightframe">
+            <center>
+                <div id = "position_div">
+                    <h2><span id = "position_name" style = "font-size:26px;"></span>님의 위치 정보</h2>
+                    
+                    <form id = "position_info">
+                        <div style = "width:80%;overflow-y:scroll;height:300px;">
+                        <table id = "position_table" style = "text-align:center;">
+                            <tr>
+                                <td>위도</td><td>경도</td><td>시간</td><td></td>
+                            </tr>
+                        </table>
+                        </div>
+                    </form>
+                    
+                </div>
+                <div id = "googleMapDiv" style = "overflow:scroll;width:80%;height:350px;background-color:gray;"></div>
+            </center>
+            
+        </div>
+	         
+	     </div>
+	     
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script type = "text/javascript" src = 'adminMyPage.js'></script>
+        <script type = "text/javascript" src = 'adminWeakInfo.js'></script>
+        <script type = "text/javascript" src = 'googleMap.js'></script>
+        
+        
+        
+       
+    </body>
+</html>
