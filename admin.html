@@ -208,13 +208,15 @@
                     <form id = "weak_search_form">
                         <table style = "text-aling:center;">
                             <tr>
-                                <td>이름</td><td><input type = "text" placeholder="이름 입력" id = "search_name"></td>
+                                <td>이름</td><td><input type = "text" placeholder="이름 입력" id = "search_name" onkeypress = "javascript:if(event.keyCode==13){searchBtnClick()}">
+                                <input type = "text" style = "display:none;"></td><!--text 폼 하나만 있을 때 엔터키 누르면 자동 submit된다! 그거 방지하기 위해 다른 폼 하나 더 생성. -->
+                            
                                 <td><input type = "button" id = "search_btn" value = "검색" onclick = "searchBtnClick()"></td>
                             </tr>
                         </table>
                     </form>
                     <form id = "weak_info">
-                        <div style = "overflow-y:scroll;width:80%;height:200px;">
+                        <div style = "overflow-y:scroll;width:90%;height:200px;">
                         <table id = "weak_table" style = "text-align:center;">
                             <tr>
                                 <td>약자 번호</td><td>id</td><td>이름</td><td>성별</td><td>나이</td><td>거주지 위도</td><td>거주지 경도</td><td>상세 정보</td><td>특이사항</td><td></td>
@@ -264,7 +266,7 @@
                     </form>
                     
                 </div>
-                <div id = "googleMapDiv" style = "overflow:scroll;width:80%;height:300px;background-color:gray;"></div>
+                <div id = "googleMapDiv" style = "overflow:scroll;width:80%;height:350px;background-color:gray;"></div>
             </center>
             
         </div>
@@ -276,6 +278,8 @@
         <script type = "text/javascript" src = 'adminMyPage.js'></script>
         <script type = "text/javascript" src = 'adminWeakInfo.js'></script>
         <script type = "text/javascript" src = 'googleMap.js'></script>
+        
+        
         
        
     </body>
