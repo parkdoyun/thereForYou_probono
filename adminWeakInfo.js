@@ -10,7 +10,9 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
 
         
 var docClient = new AWS.DynamoDB.DocumentClient();
+var docClient1 = new AWS.DynamoDB.DocumentClient();
 var params;
+var params1;
 
 
 //var socket = io.connect('http://15.165.115.252:8080/'); // 뒤에 main 이런 거 붙이면 안 됨.
@@ -41,12 +43,13 @@ function weak_init()
     if(err) console.log(err);
     else
     {
-        
         weakNum = data.Item.weakTotalNum;
+        var read_check = 0; // 몇명 읽었는지.
         //그만큼 읽어오기(weakInfo 테이블에서)
-        for(var i = 0; i < weakNum; i++)
+        for(var i = 0; i < 100; i++)
         {
-            params = {
+            if(read_check == weakNum) break;
+            params1 = {
                 TableName : 'weakInfo',
                 Key : {
                     'contact' : login_phone,
@@ -54,10 +57,12 @@ function weak_init()
                 }
                 
             };
-            docClient.get(params, function(err, data){
-                if(err) console.log(err);
+            docClient1.get(params1, function(err, data){
+                if(err) console.log(err); // 오류 찍는 게 안 먹는다.
+                else if(data.Item == undefined) {} // 안 읽히는 건 이렇게 해줘야 됨
                 else
                 {
+                    read_check++;
                     weakInfoArr[i] = data.Item;
                     //weak table에 새로운 행 추가
                     var new_tr = document.createElement("tr");
@@ -106,6 +111,7 @@ function weak_init()
                 	var td_del = document.createElement("input");
                 	td_del.setAttribute("type", "button");
                 	td_del.setAttribute("value", "삭제");
+                	td_del.setAttribute("onclick", "delWeak(this)");
                 	td_del1.appendChild(td_del);
                 	new_tr.appendChild(td_del1);
                 	
@@ -116,6 +122,7 @@ function weak_init()
                 	
                 	weak_table.appendChild(new_tr);
                 }
+            
             });
             
         }
@@ -145,6 +152,10 @@ map = new google.maps.Map(document.getElementById("googleMapDiv"),{
                 zoom : 10
             });
 var markers = new Array(); // 마커 보관할 배열, 마커 위치랑 비교해서 찾기 위해
+
+var iconPurple = new google.maps.MarkerImage('/image/marker_purple2.png', null, null, null, new google.maps.Size(40,40));
+var iconRed = new google.maps.MarkerImage('/image/marker_red2.png', null, null, null, new google.maps.Size(40,40));
+var iconStar = new google.maps.MarkerImage('/image/marker_star3.png', null, null, null, new google.maps.Size(40,40));
 
 function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
 {
@@ -204,6 +215,7 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
                     position :  {lat : res_latitude, lng : res_longitude},
                     map : map,
                     title : 'Hello World!',
+                    /*
                     icon : {
                         path : google.maps.SymbolPath.CIRCLE,
                         scale : 5,
@@ -212,6 +224,8 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
                         strokeColor : 'red', // 테두리 색
                         strokeWeight : 1.5 // 테두리 두께
                     },
+                    */
+                    icon : iconStar,
                     draggable : false // 이동 불가능
                 });
                 
@@ -232,6 +246,10 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
             data.Items.forEach(function(item){
                 
                 var new_tr = document.createElement("tr");
+                
+                var td_time = document.createElement("td");
+                td_time.innerHTML = item.time;
+                new_tr.appendChild(td_time);
                     
                 var td_lat = document.createElement("td");
                 td_lat.innerHTML = item.latitude;
@@ -241,14 +259,11 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
                 td_lon.innerHTML = item.longitude;
                 new_tr.appendChild(td_lon);
                 
-                var td_time = document.createElement("td");
-                td_time.innerHTML = item.time;
-                new_tr.appendChild(td_time);
-                
                 var td_del1 = document.createElement("td");
                 var td_del = document.createElement("input");
                 td_del.setAttribute("type", "button");
                 td_del.setAttribute("value", "삭제");
+                td_del.setAttribute("onclick", "delPos(this)"); // 삭제 버튼 누르면 해당 위치정보 삭제
                 td_del1.appendChild(td_del);
                 new_tr.appendChild(td_del1);
                 
@@ -262,10 +277,12 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
                 var curLocation = {lat : item.latitude, lng : item.longitude};
                     
                 // create a marker on the map.
+                
                 var marker = new google.maps.Marker({
                     position : curLocation,
                     map : map,
                     title : 'Hello World!',
+                    /*
                     icon : {
                         path : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
                         scale : 5,
@@ -274,6 +291,8 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
                         strokeColor : 'white', // 테두리 색
                         strokeWeight : 1.5 // 테두리 두께
                     },
+                    */
+                    icon : iconPurple,
                     draggable : false // 이동 불가능
                 });
                 
@@ -295,6 +314,167 @@ function modClickTr(tr) // 정보 수정하는 폼으로 정보 넘기기
    
 }
 
+function delPos(btn) //해당 위치정보 삭제 함수(positionInfo 테이블에서)
+{
+    // 삭제하시겠습니까? 대화상자
+    if(confirm("삭제하시겠습니까?") == true) // 확인
+    {
+         // db 테이블에서 해당 정보 삭제
+        // weakIDNow로 지금 약자 아이디 가짐
+        // 해당 버튼이 position_table에서 어디 열에 있는지 찾자.
+        // 이 버튼의 부모(td 객체)의 부모(tr 객체) 찾기
+        var parent_tr = btn.parentNode.parentNode; // 부모의 부모 찾기
+        var del_time = position_table.rows[parent_tr.rowIndex].cells[0].innerHTML;
+        
+        
+        params = {
+            TableName : "positionInfo",
+            Key:{
+              "weakID" : weakIDNow,
+              "time" : del_time
+            }
+        };
+        
+        docClient.delete(params, function(err, data){
+           if(err) console.log(err);
+           else
+           {
+               console.log("delete success");
+               // 표에서 지우기
+               position_table.deleteRow(parent_tr.rowIndex);
+               
+               alert("[" + del_time + "] 정보가 삭제되었습니다.");
+           }
+        });
+        
+        
+        
+    }
+    else // 취소
+    {
+        alert("삭제가 취소되었습니다.");
+        return;
+    }
+   
+}
+
+function delWeak(btn) // 약자 정보 지우는 버튼
+{
+    // 삭제하시겠습니까? 대화상자
+    if(confirm("삭제하시겠습니까?") == true) // 확인
+    {
+        //해당 열을 누르지 않고 삭제할 수도 있으니 weakID 다시 구하자
+        var weak_del_tr = btn.parentNode.parentNode; // 삭제 누른 버튼이 있는 tr 객체.
+        var delWeakID = weak_del_tr.cells[1].innerHTML; // 이런 식으로 쓰는 게 더 간단.
+       
+        
+        //positionInfo에서 관련 정보 다 지우고
+        
+        for(var i = 1; i < position_table.rows.length; i++) // 첫번째 열 지우면 안 되므로
+        {
+            var del_time = position_table.rows[i].cells[0].innerHTML;
+            params = {
+            TableName : "positionInfo",
+            Key:{
+              "weakID" : delWeakID,
+              "time" : del_time
+            }
+        };
+        
+        docClient.delete(params, function(err, data){
+           if(err) console.log(err);
+           else
+           {
+               console.log("delete success");
+           }
+        });
+        
+        }
+        
+        //position table 비운다
+        while(position_table.rows.length > 1)
+        {
+            position_table.deleteRow(position_table.rows.length - 1);
+        }
+        
+        
+        //weakInfo도 지우기
+        var delWeakName = weak_del_tr.cells[2].innerHTML; // 이름 얻어오기
+        var delWeakNum = weak_del_tr.cells[0].innerHTML;
+        delWeakNum = Number(delWeakNum); // 숫자로 형변환.
+        
+        params = {
+            TableName : "weakInfo",
+            Key:{
+              "contact" : login_phone,
+              "weakNum" : delWeakNum
+            }
+        };
+        
+        docClient.delete(params, function(err, data){
+           if(err) console.log(err);
+           else
+           {
+               console.log("delete success");
+           }
+        });
+        
+        // 나머지 weakInfo 애들 weakNum 갱신시키기.(그 뒤 애들만 1 줄임) -> 불가능.(정렬키 수정 불가능하다)
+        // 우선 total weak 몇명인지 찾기.
+        var totalWeakNum;
+        params = {
+        	TableName : 'guardNum',
+        	Key : {
+        		'contact' : login_phone, // hash key와 range key 모두 사용해야 함.
+        	}
+        };
+        
+        docClient.get(params, function(err, data){
+        if(err) console.log(err);
+        else
+        {
+            totalWeakNum = data.Item.weakTotalNum;
+            totalWeakNum = Number(totalWeakNum) - 1; // 하나 줄임
+             //guardNum weakTotalNum 하나 줄이고
+             params = {
+                TableName : 'guardNum',
+                Key : {
+                    'contact' : login_phone,
+                },
+                ExpressionAttributeNames : { // 이렇게 지정해줘야 한다(예약어)
+                    "#n" : 'weakTotalNum',
+                },
+                UpdateExpression : "set #n =:n", // 그냥 name은 예약어라 안 된다! 바꿔야 함.
+                ExpressionAttributeValues : {
+                    ':n' : totalWeakNum
+                },
+                ReturnValues : 'NONE', // optional (NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW)
+                ReturnItemCollectionMetrics : 'NONE', // optional (NONE | SIZE)
+                
+            };
+            
+            docClient.update(params, function(err, data){
+                if(err) console.log(err);
+                else console.log("modify guardNum success");
+            });
+            
+            
+            //weak table 지우고 다시 불러오기.
+            while(weak_table.rows.length > 1)
+            {
+                weak_table.deleteRow(weak_table.rows.length - 1);
+            }
+            weak_init();
+        }
+        });
+        alert(delWeakName + "님의 정보가 전부 삭제되었습니다.");
+    }
+    else // 취소
+    {
+        alert("삭제가 취소되었습니다.");
+        return;
+    }
+}
 
 function searchBtnClick() // 약자 정보 중에서 이름 검색하는 버튼
 {

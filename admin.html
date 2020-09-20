@@ -60,9 +60,20 @@
             }
             #weak_table{
             	width:100%;
-                border-top: 1px solid #444444;
-                border-bottom: 1px solid #444444;
                 border-collapse: collapse;
+                line-height:1.5;
+                text-align:center;
+            }
+            #weak_table thead th{
+                padding:10px;
+                font-weight:bold;
+                vertical-align:top;
+                color:#60668a;
+                border-bottom:3px solid #60668a;
+            }
+            #weak_table td{
+                vertical-align:top;
+                border-bottom:1px solid #ccc;
             }
             #guard_div{
             	margin-top:50px;
@@ -78,9 +89,20 @@
             }
             #position_table{
             	width:100%;
-                border-top: 1px solid #444444;
-                border-bottom: 1px solid #444444;
+                line-height:1.5;
+                text-align:center;
                 border-collapse: collapse;
+            }
+            #position_table thead th{
+                padding:10px;
+                font-weight:bold;
+                vertical-align:top;
+                color:#60668a;
+                border-bottom:3px solid #60668a;
+            }
+            #position_table td{
+                vertical-align:top;
+                border-bottom:1px solid #ccc;
             }
             ul{
                 list-style-type : none;
@@ -154,6 +176,7 @@
 	        {
 	            //세션 비우고
 	            sessionStorage.clear();
+	            login_phone = ""; // 보호자 아이디 변수도 비워줌
 	            alert("로그아웃되었습니다.");
 	            location.href = "http://15.165.115.252:8080/login"; // 여기로 이동
 	        }
@@ -217,10 +240,12 @@
                     </form>
                     <form id = "weak_info">
                         <div style = "overflow-y:scroll;width:90%;height:200px;">
-                        <table id = "weak_table" style = "text-align:center;">
+                        <table id = "weak_table">
+                            <thead>
                             <tr>
-                                <td>약자 번호</td><td>id</td><td>이름</td><td>성별</td><td>나이</td><td>거주지 위도</td><td>거주지 경도</td><td>상세 정보</td><td>특이사항</td><td></td>
-                            </tr>
+                                <th>약자 번호</th><th>id</th><th>이름</th><th>성별</th><th>나이</th><th>거주지 위도</th><th>거주지 경도</th><th>상세 정보</th><th>특이사항</th><th></th>
+                            </tr></thead>
+                            <tbody></tbody>
                         </table>
                         </div>
                     </form>
@@ -258,9 +283,12 @@
                     <form id = "position_info">
                         <div style = "width:80%;overflow-y:scroll;height:300px;">
                         <table id = "position_table" style = "text-align:center;">
+                            <thead>
                             <tr>
-                                <td>위도</td><td>경도</td><td>시간</td><td></td>
+                                <th>시간</th><th>위도</th><th>경도</th><th></th>
                             </tr>
+                            </thead>
+                            <tbody></tbody>
                         </table>
                         </div>
                     </form>
