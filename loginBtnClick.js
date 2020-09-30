@@ -189,6 +189,8 @@ function submitSignUp() {
         var sessionData = user_PhoneNumber;
         sessionStorage.setItem("phoneNumber", sessionData);
         
+        sessionStorage.setItem("accessToken", result.getAccessToken().getJwtToken()); // 회원 탈퇴에 필요한 토큰 세션에 넣기.
+        
         //dynamoDB guardInfo에서 관련 이름 찾아서 세션에 넣기
         var user_Name; // 이름 넣을 변수
         

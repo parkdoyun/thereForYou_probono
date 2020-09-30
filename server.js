@@ -70,6 +70,23 @@ app.get('/admin', function(req, res){
  });
 });
 
+//kakaoMapTest.html 열기
+app.get('/kakaotest', function(req, res){
+ fs.readFile("kakaoMapTest.html", function(err, data){
+ 	if(err) 
+ 	{
+ 		console.log(err);
+ 		res.writeHead(500);
+ 		return res.end('Error loading index.html');
+ 	}
+ 	else
+ 	{
+ 		res.writeHead(200, {'Content-Type' : 'text/html'}); // head type 설정
+ 		res.end(data); // 로드 html response
+ 	}
+ });
+});
+
 var port = process.env.PORT || 8080;
 
 server.listen(port, () => {
@@ -97,6 +114,7 @@ function handler (req, res) {
 
 // dynamoDB 연동
 // dynamoDB 테이블 값 가져와서 클라이언트에 전송(weakInfo)
+/*
 
 var aws = require('aws-sdk');
 aws.config.update({region : "ap-northeast-2"});
@@ -104,7 +122,7 @@ aws.config.update({region : "ap-northeast-2"});
 var dynamodb = new aws.DynamoDB();
 
 var params = {Limit : 100}; // 나열 개수 10개로 제한.
-
+*/
 // 현재 계정 및 리전에 있는 테이블 나열
 /*
 dynamodb.listTables(params, function(err, data){ 
@@ -149,7 +167,7 @@ dynamodb.createTable(params, function(err, data){
 })
 */
 
-var docClient = new aws.DynamoDB.DocumentClient({apiVersion : '2019-02-12'}); // create the dynamoDB service object
+//var docClient = new aws.DynamoDB.DocumentClient({apiVersion : '2019-02-12'}); // create the dynamoDB service object
 
 // 새로운 항목 생성, 이 때 파티션 키, 정렬 키와 일치하는 값 있을 경우 기존 항목 갱신.
 /*
@@ -203,6 +221,7 @@ docClient.get(params, function(err, data){
 */
 
 // socket 부분(클라이언트랑 통신)
+/*
 
 io.sockets.on('connection', function (socket) {  // 1
 	socket.emit('news', { serverData : "서버 작동" });
@@ -248,3 +267,4 @@ io.sockets.on('connection', function (socket) {  // 1
 	});
 
 });
+*/

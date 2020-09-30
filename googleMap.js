@@ -36,6 +36,7 @@ function initMap()
         position : curLocation,
         map : map,
         title : 'Hello World!',
+        /*
         icon : {
             path : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
             scale : 5,
@@ -44,6 +45,8 @@ function initMap()
             strokeColor : 'black', // 테두리 색
             strokeWeight : 0.4 // 테두리 두께
         },
+        */
+        icon : iconRed,
         draggable : false // 이동 불가능
     });
     
@@ -61,10 +64,12 @@ function initMap()
 
 //initMap();
 
+
+
 function showMap(tr) // google 지도에서 해당 위치 보여주기, 클릭할 때마다 그곳으로 집중, 색 바뀌도록 설정 & 정보 띄우기
 {
-    var tr_latitude = position_table.rows[tr.rowIndex].cells[0].innerHTML; // 해당 tr의 위도(0번째 열)
-    var tr_longitude = position_table.rows[tr.rowIndex].cells[1].innerHTML; // 해당 tr의 경도(1번째 열)
+    var tr_latitude = position_table.rows[tr.rowIndex].cells[1].innerHTML; // 해당 tr의 위도(0번째 열)
+    var tr_longitude = position_table.rows[tr.rowIndex].cells[2].innerHTML; // 해당 tr의 경도(1번째 열)
     
     var tr_position  = new google.maps.LatLng(tr_latitude, tr_longitude);
     map.panTo(tr_position); // 새로운 중심으로 이동
@@ -76,6 +81,7 @@ function showMap(tr) // google 지도에서 해당 위치 보여주기, 클릭�
         //만약 위치 같은 마커 있으면 색상 변경해주고 나가기
         if(markers[i].getPosition().equals(tr_position))
         {
+            /*
             markers[i].setIcon({
             path : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
             scale : 5,
@@ -83,18 +89,25 @@ function showMap(tr) // google 지도에서 해당 위치 보여주기, 클릭�
             fillOpacity : 0.8,
             strokeColor : 'white', // 테두리 색
             strokeWeight : 1.5 // 테두리 두께
-        });
+            
+        });*/
+            markers[i].setIcon(iconRed);
         }
         else // 해당 마커 아니면 다 원래 색으로
         {
+            /*
             markers[i].setIcon({
+                
             path : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
             scale : 5,
             fillColor : "blueViolet",
             fillOpacity : 0.8,
             strokeColor : 'white', // 테두리 색
             strokeWeight : 1.5 // 테두리 두께
+             
         });
+        */
+            markers[i].setIcon(iconPurple);
         }
     }
 }
