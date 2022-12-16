@@ -110,12 +110,13 @@ function makeRndString() // 랜덤으로 임의의 아이디 생성하는 함수
     return rndStr;
 }
 
-function weakSignUpBtn() // 약자 정보 새로 등록하는 곳
+function weakSignUpBtn() // 약자 정보 새로 등록하는 곳 -> 한 보호자당 100명이 최대가 되도록 설정.
 {
-    
+    // 삭제할 때 weakNum 변경되지 않기 때문에 등록할 때 weakNum을 guardNum에서 얻어오는 게 아니라
+    // weakInfo에서 제일 높은 숫자 혹은 삭제되어서 비어있는 숫자로 얻어와야 함.
     
     //우선 guardNum에서 weakTotalNum 읽어와서 테이블에 넣기.
-    var signup_weakNum; // 넣을 변수
+    var weakTotalNum; // 넣을 변수
     params = {
     	TableName : 'guardNum',
     	Key : {
@@ -127,68 +128,124 @@ function weakSignUpBtn() // 약자 정보 새로 등록하는 곳
     	if(err) console.log(err);
     	else
     	{ 
-    	signup_weakNum = data.Item.weakTotalNum; // signuup_weakNum 받고 여기서 써야함.
-    	
-    	var weakTotalNum_mod = Number(signup_weakNum) + 1;
-    	
-    	//console.log(weakTotalNum_mod);
-    	
-    	//guardNum에서 weakTotalNum 갱신
-        params1 = {
-            TableName : 'guardNum',
-            Key : {
-                'contact' : login_phone,
-            },
-            ExpressionAttributeNames : { // 이렇게 지정해줘야 한다(예약어)
-                "#n" : 'weakTotalNum',
-            },
-            UpdateExpression : "set #n =:n", // 그냥 name은 예약어라 안 된다! 바꿔야 함.
-            ExpressionAttributeValues : {
-                ':n' : weakTotalNum_mod
-            },
-            ReturnValues : 'NONE', // optional (NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW)
-            ReturnItemCollectionMetrics : 'NONE', // optional (NONE | SIZE)
-            
-        };
-        
-        docClient1.update(params1, function(err, data){
-            if(err) console.log(err);
-            else console.log("modify guardNum success");
-        });
-    	
-    	//weakID 임의의 문자열로 생성하기.
-        var signup_weakID = makeRndString();
-        var signup_sex;
-         //여성 : sex - false, 남성 - true
-        if(document.getElementById("weak_signup_sex").options[0].selected == true) signup_sex = true;
-        else signup_sex = false;
-        
-        //weakInfo에 정보 넣기
-        //console.log(signup_weakNum + ' ' + document.getElementById("weak_signup_age").value + ' ');
-        params1 = {
-        	TableName : 'weakInfo',
-        	Item : {
-        		'contact' : login_phone,
-        		'weakNum' : signup_weakNum,
-        		'age' : document.getElementById("weak_signup_age").value,
-        		'feature' : document.getElementById("weak_signup_feature").value,
-        		'name' : document.getElementById("weak_signup_name").value,
-        		'res_detail' : document.getElementById("weak_signup_detail").value,
-        		'res_latitude' : document.getElementById("weak_signup_lat").value,
-        		'res_longitude' : document.getElementById("weak_signup_lng").value,
-        		'weakID' : signup_weakID,
-        		'sex' : signup_sex
+        	weakTotalNum = data.Item.weakTotalNum;
+        	weakTotalNum = Number(weakTotalNum); // 숫자로 형변환
+        	if(weakTotalNum >= 100)
+        	{
+        	    alert("현재 등록되어 있는 약자의 수가 " + weakTotalNum +"명입니다. 더 이상 등록할 수 없습니다.");
         	}
-        };
-        
-        
-        
-        docClient1.put(params1, function(err, data){
-        	if(err) console.log(err);
-        	else console.log("put success", data.Item);
-        });
-    
-    	alert("등록되었습니다.");
+        	else
+        	{
+        	    var weakTotalNum_mod = weakTotalNum + 1;
+        	
+            	//console.log(weakTotalNum_mod);
+            	
+            	//guardNum에서 weakTotalNum 갱신
+            	
+                params1 = {
+                    TableName : 'guardNum',
+                    Key : {
+                        'contact' : login_phone,
+                    },
+                    ExpressionAttributeNames : { // 이렇게 지정해줘야 한다(예약어)
+                        "#n" : 'weakTotalNum',
+                    },
+                    UpdateExpression : "set #n =:n", // 그냥 name은 예약어라 안 된다! 바꿔야 함.
+                    ExpressionAttributeValues : {
+                        ':n' : weakTotalNum_mod
+                    },
+                    ReturnValues : 'NONE', // optional (NONE | ALL_OLD | UPDATED_OLD | ALL_NEW | UPDATED_NEW)
+                    ReturnItemCollectionMetrics : 'NONE', // optional (NONE | SIZE)
+                    
+                };
+                
+                docClient1.update(params1, function(err, data){
+                    if(err) console.log(err);
+                    else console.log("modify guardNum success");
+                });
+                
+                
+            	//0부터 100까지 쓸 수 있는 signup_weakNum 구하기
+            	var signup_weakNum = -1;
+            	var arrNum = new Array();
+            
+            	
+            	    params1 = {
+                	    TableName : "weakInfo",
+                	    KeyConditionExpression : "#c = :c",
+                	    ExpressionAttributeNames : {
+                	        "#c" : "contact"
+                	       
+                	    },
+                	    ExpressionAttributeValues : {
+                	        ":c" : login_phone
+                	       
+                	    }
+                	};
+                	docClient1.query(params1, function(err,data){
+                	    if(err) console.log(err);
+                	    else
+                	    {
+                	        for(var i = 0; i < 100; i++)
+                	        {
+                	            arrNum[i] = 0;
+                	        }
+                	        data.Items.forEach(function(item){
+                	            arrNum[item.weakNum] = 1;
+                	        })
+                	        for(var i = 0; i < 100; i++)
+                	        {
+                	            //제일 처음으로 0인 것 번호로 함.
+                	            if(arrNum[i] == 0)
+                	            {
+                	                signup_weakNum = i;
+                	                console.log(i);
+                	                //weakID 임의의 문자열로 생성하기.
+                                    var signup_weakID = makeRndString();
+                                    var signup_sex;
+                                     //여성 : sex - false, 남성 - true
+                                    if(document.getElementById("weak_signup_sex").options[0].selected == true) signup_sex = true;
+                                    else signup_sex = false;
+                                    
+                                    //weakInfo에 정보 넣기
+                                    //console.log(signup_weakNum + ' ' + document.getElementById("weak_signup_age").value + ' ');
+                                    params1 = {
+                                    	TableName : 'weakInfo',
+                                    	Item : {
+                                    		'contact' : login_phone,
+                                    		'weakNum' : signup_weakNum,
+                                    		'age' : document.getElementById("weak_signup_age").value,
+                                    		'feature' : document.getElementById("weak_signup_feature").value,
+                                    		'name' : document.getElementById("weak_signup_name").value,
+                                    		'res_detail' : document.getElementById("weak_signup_detail").value,
+                                    		'res_latitude' : document.getElementById("weak_signup_lat").value,
+                                    		'res_longitude' : document.getElementById("weak_signup_lng").value,
+                                    		'weakID' : signup_weakID,
+                                    		'sex' : signup_sex
+                                    	}
+                                    };
+                                    
+                                    
+                                    
+                                    docClient1.put(params1, function(err, data){
+                                    	if(err) console.log(err);
+                                    	else console.log("put success", data.Item);
+                                    });
+                                
+                                	alert("등록되었습니다.");
+                	                break;
+                	            }
+                	        }
+                	            
+                	        
+                	        
+                	    
+                	    }
+                	});
+                
+            
+            	
+        	}
     	}
     });
 }
